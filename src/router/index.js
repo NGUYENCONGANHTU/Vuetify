@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HelloWorld from "../components/HelloWorld.vue";
+import LoginAuth from "../components/LoginAuth.vue";
+import SignUp from "../components/SignUp.vue";
 import NoteApp from "../components/NoteApp/NoteApp.vue";
+import ListTable from "../Admin/ListTable.vue";
 const routes = [
   {
     path: "/",
@@ -8,9 +10,19 @@ const routes = [
     component: NoteApp,
   },
   {
-    path: "/hw",
-    name: "HelloWorld",
-    component: HelloWorld,
+    path: "/login",
+    name: "LoginAuth",
+    component: LoginAuth,
+  },
+  {
+    path: "/signup",
+    name: "SignUp",
+    component: SignUp,
+  },
+  {
+    path: "/admin",
+    name: "ListTable",
+    component: ListTable,
   },
 ];
 
