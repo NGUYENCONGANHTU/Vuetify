@@ -2,13 +2,18 @@
   <!-- Dialog component with v-model for controlling its state -->
   <v-dialog v-model="dialog" max-width="550">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="surface-variant" variant="flat">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
+      <div
+        v-bind="props"
+        color="surface-variant"
+        variant="flat"
+        style="cursor: pointer; display: inline-block"
+      >
+        <v-icon>mdi-pencil</v-icon>
+      </div>
     </template>
 
     <v-card>
-      <v-card-title>{{ t("Add New Note") }}</v-card-title>
+      <v-card-title>{{ t("Edit Note") }}</v-card-title>
       <v-card-text>
         <v-form>
           <v-date-picker
@@ -36,8 +41,8 @@
           </div>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn @click="dialog = false">{{ t("Close Dialog") }} </v-btn>
-            <v-btn @click="submit">{{ t("Add") }} </v-btn>
+            <v-btn :text="t('Close Dialog')" @click="dialog = false"></v-btn>
+            <v-btn :text="t('Edit')" @click="submit"></v-btn>
           </v-card-actions>
         </v-form>
       </v-card-text>
@@ -46,16 +51,18 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, defineProps, watch } from "vue";
 import moment from "moment";
+import { useNoteStore } from "@/stores/NoteStore";
+const props = defineProps(["item"]);
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
-import { useNoteStore } from "@/stores/NoteStore";
-// import { Book } from "@/models/book"
+
 const dialog = ref(false);
+const id = ref("");
 const title = ref("");
 const content = ref("");
-const showNote = ref(false); // Thêm biến menu để điều khiển v-menu
+const showNote = ref(true); // Thêm biến menu để điều khiển v-menu
 const datePicker = ref(null);
 const store = useNoteStore();
 const titleRules = [(v) => !!v || " Tiêu đề không được để trống "];
@@ -67,6 +74,33 @@ const user = localStorage.all(KEY.user);
 const formattedDate = computed(() => {
   return moment(datePicker.value).format("DD-MM-YYYY");
 });
+
+const detail = computed(() => {
+  if (!props.item) {
+    return null;
+  } else {
+    return props.item;
+  }
+});
+
+const parseDate = (dataString) => {
+  if (!dataString) return;
+  const [day, month, year] = dataString.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+watch(
+  detail,
+  (newDetail) => {
+    if (newDetail) {
+      datePicker.value = parseDate(newDetail.DataBook);
+      id.value = newDetail.Id;
+      title.value = newDetail.Name || "";
+      content.value = newDetail.Content || "";
+    }
+  },
+  { immediate: true }
+);
 
 const getValueDate = async (date) => {
   showNote.value = true;
@@ -86,7 +120,7 @@ const submit = () => {
       user_id: JSON.parse(user).id,
     };
 
-    store.addBook(book);
+    store.update(id.value, book);
   }
   showNote.value = false;
   dialog.value = false;

@@ -1,52 +1,57 @@
 <template>
   <v-app>
-    <v-container>
-      <v-data-table
-        :headers="headers"
-        :items="data"
-        item-key="name"
-        :search="Search"
-        class="elevation-1"
-      >
-        <template v-slot:[`item.actions`]="{ item }">
-          <v-icon @click="remove(item.id)" class="mr-2">mdi-delete</v-icon>
-        </template>
-        <template v-slot:top>
-          <v-text-field
-            v-model="search"
-            label="Search"
-            class="mb-2"
-            append-icon="mdi-magnify"
-          ></v-text-field>
-        </template>
-      </v-data-table>
+    <v-container fluid>
+      <v-container class="d-block align-center" height="100vh">
+        <v-card class="pa-3">
+          <v-data-table
+            :items="formattedBooks"
+            item-key="Id"
+            class="elevation-1"
+          >
+            <template v-slot:[`item.Actions`]="{ item }">
+              <v-icon @click="remove(item.Id)" class="mr-2">mdi-delete</v-icon>
+              <EditNote class="mr-2" :item="item" />
+            </template>
+          </v-data-table>
+        </v-card>
+      </v-container>
     </v-container>
   </v-app>
 </template>
 
 <script setup>
+import EditNote from "@/components/NoteApp/EditNote.vue";
+import { onMounted, computed } from "vue";
 import { useNoteStore } from "@/stores/NoteStore";
-import { ref } from "vue";
+import localStorage from "@/lib/localStorage";
+import { KEY } from "@/lib/key-data";
+const user = localStorage.all(KEY.user);
 const store = useNoteStore();
-
-const data = ref(store.notes);
-const search = ref(null);
-
-const headers = [
-  { text: "Name", value: "name" },
-  { text: "Content", value: "content" },
-  { text: "Date", value: "date" },
-  { text: "Actions", value: "actions", sortable: false }, // Đảm bảo có giá trị 'actions' ở đây
-];
-const remove = (uId) => {
-  store.deleteNote(uId);
+const formattedBooks = computed(() => {
+  return store.boosUser.map((book) => ({
+    Id: book.id,
+    User:
+      JSON.parse(user).id == book.user_id
+        ? JSON.parse(user).name
+        : book.user_id,
+    Name: book.name,
+    Content: book.notes,
+    DataBook: book.time_boos,
+    Actions: book.actions,
+  }));
+});
+const remove = (id) => {
+  if (!id) return;
+  store.deleteBook(id);
 };
 
-const Search = () => {
-  store.searchName(search.value);
-};
+onMounted(() => {
+  store.fetchUserBooks();
+});
 </script>
 
-<style>
-/* Your custom styles here */
+<style scoped>
+* {
+  padding: 0;
+}
 </style>

@@ -53,7 +53,11 @@
         ></v-text-field>
 
         <!-- Submit Button -->
-        <v-btn class="mt-5" color="success" @click="submit"> Đăng ký </v-btn>
+        <v-btn class="mt-5" color="success" @click="submit">
+          <router-link to="/login" style="text-decoration: none; color: white"
+            >Đăng kí</router-link
+          >
+        </v-btn>
       </v-form>
     </v-card>
   </v-container>

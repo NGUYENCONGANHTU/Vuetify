@@ -39,10 +39,14 @@
 
 <script setup>
 import { ref } from "vue";
+import { loginApp } from "@/service/auth.service";
+import { useRouter } from "vue-router";
 const email = ref();
 const form = ref(null);
 const valid = ref(false);
 const password = ref();
+const router = useRouter();
+
 const emailRules = [
   (v) => !!v || " Email không được để trống ",
   (v) => /.+@.+\..+/.test(v) || "Email chưa hợp lệ",
@@ -53,7 +57,15 @@ const passwordRules = [
 ];
 const login = () => {
   if (form.value.validate()) {
-    console.log(email.value && password.value);
+    const checkLogin = loginApp({
+      email: email.value,
+      password: password.value,
+    });
+    if (checkLogin) {
+      console.log(1);
+
+      router.push("/admin");
+    }
   }
 };
 const forgotPassword = () => {
@@ -61,7 +73,4 @@ const forgotPassword = () => {
 };
 </script>
 
-<style scoped>
-.v-messages__message {
-}
-</style>
+<style scoped></style>
